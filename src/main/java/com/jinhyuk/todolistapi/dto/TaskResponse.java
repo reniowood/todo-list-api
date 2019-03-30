@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,6 +17,8 @@ public class TaskResponse {
     private String title;
     private boolean isDone;
     private List<TaskResponse> preTasks;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public static TaskResponse from(Task task) {
         return TaskResponse.builder()
@@ -23,6 +26,8 @@ public class TaskResponse {
                 .title(task.getTitle())
                 .isDone(task.isDone())
                 .preTasks(task.getPreTasks().stream().map(TaskResponse::from).collect(Collectors.toList()))
+                .createdAt(task.getCreatedAt())
+                .updatedAt(task.getUpdatedAt())
                 .build();
     }
 }
