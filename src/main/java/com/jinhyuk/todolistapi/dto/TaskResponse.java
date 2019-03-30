@@ -1,16 +1,14 @@
 package com.jinhyuk.todolistapi.dto;
 
 import com.jinhyuk.todolistapi.entity.Task;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Builder
+@NoArgsConstructor @AllArgsConstructor
 @Getter @Setter @ToString
 public class TaskResponse {
     private int id;

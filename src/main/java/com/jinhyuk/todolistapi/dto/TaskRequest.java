@@ -4,9 +4,7 @@ import com.jinhyuk.todolistapi.entity.Task;
 import com.jinhyuk.todolistapi.exception.ErrorCode;
 import com.jinhyuk.todolistapi.exception.InvalidArgumentApiException;
 import com.jinhyuk.todolistapi.repository.TaskRepository;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.util.StringUtils;
 
 import java.util.HashSet;
@@ -14,7 +12,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Builder @Getter @ToString
+@NoArgsConstructor @AllArgsConstructor
+@Builder @Getter @Setter @ToString
 public class TaskRequest {
     private int id;
     private String title;
