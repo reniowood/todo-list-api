@@ -1,6 +1,7 @@
 package com.jinhyuk.todolistapi.service;
 
 import com.jinhyuk.todolistapi.dto.TaskRequest;
+import com.jinhyuk.todolistapi.dto.TaskResponse;
 import com.jinhyuk.todolistapi.entity.Task;
 import com.jinhyuk.todolistapi.exception.ErrorCode;
 import com.jinhyuk.todolistapi.exception.InvalidArgumentApiException;
@@ -34,5 +35,11 @@ public class TaskService {
         ));
 
         return task;
+    }
+
+    public TaskResponse getTask(int id) {
+        final Task task = taskRepository.findById(id).orElseThrow(() -> new InvalidArgumentApiException(ErrorCode.TASK_NOT_FOUND));
+
+        return TaskResponse.from(task);
     }
 }

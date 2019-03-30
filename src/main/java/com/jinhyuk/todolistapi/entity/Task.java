@@ -1,5 +1,6 @@
 package com.jinhyuk.todolistapi.entity;
 
+import com.jinhyuk.todolistapi.dto.TaskRequest;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -26,11 +27,12 @@ public class Task {
     @Column(name = "is_done")
     private boolean isDone;
 
+    @Builder.Default
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "task_relation",
             joinColumns = {@JoinColumn(name = "post_task_id")},
             inverseJoinColumns = {@JoinColumn(name = "pre_task_id")})
-    private List<Task> preTasks;
+    private List<Task> preTasks = new ArrayList<>();
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -39,9 +41,6 @@ public class Task {
     private LocalDateTime updatedAt;
 
     public void addPreTask(Task preTask) {
-        if (preTasks == null) {
-            preTasks = new ArrayList<>();
-        }
         preTasks.add(preTask);
     }
 }
