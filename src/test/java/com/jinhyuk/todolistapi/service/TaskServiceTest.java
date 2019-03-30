@@ -160,4 +160,75 @@ public class TaskServiceTest {
         Assert.assertEquals(PAGE_SIZE, secondPage.size());
         Assert.assertEquals(TOTAL_SIZE - 2 * PAGE_SIZE, thirdPage.size());
     }
+
+    @Test
+    @Transactional
+    public void testUpdateTask() {
+        // given
+        final Task task = taskRepository.save(Task.builder().title("장보기").isDone(false).build());
+
+        // when
+        final TaskRequest taskRequest = TaskRequest.builder().id(task.getId()).title("요리하기").isDone(true).build();
+        taskService.updateTask(taskRequest);
+
+        // then
+        final Optional<Task> taskOptional = taskRepository.findById(task.getId());
+        Assert.assertTrue(taskOptional.isPresent());
+        Assert.assertEquals(taskRequest.getTitle(), taskOptional.get().getTitle());
+        Assert.assertEquals(taskRequest.isDone(), taskOptional.get().isDone());
+    }
+
+    @Test(expected = InvalidArgumentApiException.class)
+    @Transactional
+    public void testUpdateTaskDoesNotExist() {
+        // given
+        // when
+        final TaskRequest taskRequest = TaskRequest.builder().id(-1).title("title").isDone(true).build();
+        taskService.updateTask(taskRequest);
+    }
+
+    @Test(expected = InvalidArgumentApiException.class)
+    @Transactional
+    public void testUpdateTaskWithEmptyTitle() {
+        // given
+        final Task task = taskRepository.save(Task.builder().title("장보기").isDone(false).build());
+
+        // when
+        final TaskRequest taskRequest = TaskRequest.builder().id(task.getId()).isDone(true).build();
+        taskService.updateTask(taskRequest);
+    }
+
+    @Test(expected = InvalidArgumentApiException.class)
+    @Transactional
+    public void testUpdateTaskHasItselfAsPreTask() {
+        // given
+        final Task task = taskRepository.save(Task.builder().title("장보기").isDone(false).build());
+
+        // when
+        final TaskRequest taskRequest = TaskRequest.builder()
+                .id(task.getId())
+                .title(task.getTitle())
+                .isDone(true)
+                .preTaskIds(Set.of(task.getId()))
+                .build();
+        taskService.updateTask(taskRequest);
+    }
+
+    @Test(expected = InvalidArgumentApiException.class)
+    @Transactional
+    public void testUpdateTaskHasInvalidPreTaskIds() {
+        // given
+        final Task preTask1 = taskRepository.save(Task.builder().title("장보기").isDone(true).build());
+        final Task preTask2 = taskRepository.save(Task.builder().title("밥하기").isDone(false).build());
+        final Task task = taskRepository.save(Task.builder().title("저녁식사").isDone(false).preTasks(List.of(preTask1, preTask2)).build());
+
+        // when
+        final TaskRequest taskRequest = TaskRequest.builder()
+                .id(task.getId())
+                .title(task.getTitle())
+                .isDone(true)
+                .preTaskIds(Set.of(preTask1.getId(), preTask2.getId(), 0, -1))
+                .build();
+        taskService.updateTask(taskRequest);
+    }
 }

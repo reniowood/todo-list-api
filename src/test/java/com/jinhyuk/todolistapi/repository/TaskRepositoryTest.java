@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 @RunWith(SpringRunner.class)
@@ -17,6 +18,7 @@ public class TaskRepositoryTest {
     private TaskRepository taskRepository;
 
     @Test
+    @Transactional
     public void testSave() {
         // given
         final String title = "청소하기";
@@ -36,6 +38,7 @@ public class TaskRepositoryTest {
     }
 
     @Test
+    @Transactional
     public void testManyToMany() {
         // given
         final Task preTask1 = taskRepository.save(Task.builder().title("손씻기").isDone(false).build());

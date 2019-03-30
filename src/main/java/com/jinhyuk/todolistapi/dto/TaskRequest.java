@@ -1,13 +1,19 @@
 package com.jinhyuk.todolistapi.dto;
 
 import com.jinhyuk.todolistapi.entity.Task;
+import com.jinhyuk.todolistapi.exception.ErrorCode;
+import com.jinhyuk.todolistapi.exception.InvalidArgumentApiException;
+import com.jinhyuk.todolistapi.repository.TaskRepository;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 import org.springframework.util.StringUtils;
 
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Builder @Getter @ToString
 public class TaskRequest {
@@ -24,5 +30,17 @@ public class TaskRequest {
 
     public boolean hasEmptyTitle() {
         return StringUtils.isEmpty(title);
+    }
+
+    public boolean hasItselfAsPreTask() {
+        return preTaskIds != null && preTaskIds.contains(id);
+    }
+
+    public List<Task> getPreTasks(TaskRepository taskRepository) {
+        return preTaskIds
+                .stream()
+                .map(taskRepository::findById)
+                .map(task -> task.orElseThrow(() -> new InvalidArgumentApiException(ErrorCode.PRE_TASKS_NOT_FOUND)))
+                .collect(Collectors.toList());
     }
 }

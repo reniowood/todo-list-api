@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,5 +53,31 @@ public class TaskService {
                 .stream()
                 .map(TaskResponse::from)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void updateTask(TaskRequest taskRequest) {
+        if (taskRequest.hasEmptyTitle()) {
+            throw new InvalidArgumentApiException(ErrorCode.TASK_TITLE_IS_EMPTY);
+        }
+
+        if (taskRequest.hasItselfAsPreTask()) {
+            throw new InvalidArgumentApiException(ErrorCode.TASK_HAS_ITSELF_AS_PRE_TASK);
+        }
+
+        taskRepository.findById(taskRequest.getId()).ifPresentOrElse(
+                task -> {
+                    updateTask(taskRequest, task);
+
+                    taskRepository.save(task);
+                },
+                () -> { throw new InvalidArgumentApiException(ErrorCode.TASK_NOT_FOUND); }
+        );
+    }
+
+    private void updateTask(TaskRequest taskRequest, Task task) {
+        task.setTitle(taskRequest.getTitle());
+        task.setDone(taskRequest.isDone());
+        task.setPreTasks(taskRequest.getPreTasks(taskRepository));
     }
 }
