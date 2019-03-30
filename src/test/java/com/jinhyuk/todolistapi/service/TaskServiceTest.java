@@ -37,10 +37,10 @@ public class TaskServiceTest {
         final TaskRequest taskRequest = TaskRequest.builder().title(title).build();
 
         // when
-        final int id = taskService.addTask(taskRequest);
+        final TaskResponse taskResponse = taskService.addTask(taskRequest);
 
         // then
-        final Optional<Task> taskOptional = taskRepository.findById(id);
+        final Optional<Task> taskOptional = taskRepository.findById(taskResponse.getId());
         taskOptional.ifPresentOrElse(
             task -> Assert.assertEquals(title, task.getTitle()),
             () -> Assert.fail("taskOptional must not be empty")

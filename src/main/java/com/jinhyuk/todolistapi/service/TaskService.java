@@ -19,14 +19,15 @@ import java.util.stream.Collectors;
 public class TaskService {
     private final TaskRepository taskRepository;
 
-    public int addTask(TaskRequest taskRequest) {
+    public TaskResponse addTask(TaskRequest taskRequest) {
         if (taskRequest.hasEmptyTitle()) {
             throw new InvalidArgumentApiException(ErrorCode.TASK_TITLE_IS_EMPTY);
         }
 
         final Task task = createTask(taskRequest);
         final Task savedTask = taskRepository.save(task);
-        return savedTask.getId();
+
+        return TaskResponse.from(savedTask);
     }
 
     private Task createTask(TaskRequest taskRequest) {
