@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.transaction.Transactional;
@@ -114,5 +115,49 @@ public class TaskServiceTest {
                         hasProperty("id", is(preTask2.getId()))
                 )
         );
+    }
+
+    @Test
+    @Transactional
+    @SuppressWarnings("unchecked")
+    public void testGetAllTasks() {
+        // given
+        final Task preTask1 = taskRepository.save(Task.builder().title("장보기").isDone(true).build());
+        final Task preTask2 = taskRepository.save(Task.builder().title("밥하기").isDone(false).build());
+        final Task task = taskRepository.save(Task.builder().title("저녁식사").isDone(false).preTasks(List.of(preTask1, preTask2)).build());
+
+        // when
+        final List<TaskResponse> taskResponses = taskService.getAllTasks(PageRequest.of(0, 10));
+
+        // then
+        Assert.assertEquals(3, taskResponses.size());
+        Assert.assertThat(
+                taskResponses,
+                contains(
+                        hasProperty("id", is(preTask1.getId())),
+                        hasProperty("id", is(preTask2.getId())),
+                        hasProperty("id", is(task.getId()))
+                ));
+    }
+
+    @Test
+    @Transactional
+    public void testGetAllTasksWithPaging() {
+        // given
+        final int TOTAL_SIZE = 20;
+        for (int i = 0; i < TOTAL_SIZE; ++i) {
+            taskRepository.save(Task.builder().title(String.format("task %d", i)).build());
+        }
+
+        // when
+        final int PAGE_SIZE = 7;
+        final List<TaskResponse> firstPage = taskService.getAllTasks(PageRequest.of(0, PAGE_SIZE));
+        final List<TaskResponse> secondPage = taskService.getAllTasks(PageRequest.of(1, PAGE_SIZE));
+        final List<TaskResponse> thirdPage = taskService.getAllTasks(PageRequest.of(2, PAGE_SIZE));
+
+        // then
+        Assert.assertEquals(PAGE_SIZE, firstPage.size());
+        Assert.assertEquals(PAGE_SIZE, secondPage.size());
+        Assert.assertEquals(TOTAL_SIZE - 2 * PAGE_SIZE, thirdPage.size());
     }
 }

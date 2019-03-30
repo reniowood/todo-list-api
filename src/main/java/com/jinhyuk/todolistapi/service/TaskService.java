@@ -7,7 +7,11 @@ import com.jinhyuk.todolistapi.exception.ErrorCode;
 import com.jinhyuk.todolistapi.exception.InvalidArgumentApiException;
 import com.jinhyuk.todolistapi.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -41,5 +45,12 @@ public class TaskService {
         final Task task = taskRepository.findById(id).orElseThrow(() -> new InvalidArgumentApiException(ErrorCode.TASK_NOT_FOUND));
 
         return TaskResponse.from(task);
+    }
+
+    public List<TaskResponse> getAllTasks(Pageable pageable) {
+        return taskRepository.findAll(pageable)
+                .stream()
+                .map(TaskResponse::from)
+                .collect(Collectors.toList());
     }
 }
